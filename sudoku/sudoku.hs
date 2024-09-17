@@ -89,6 +89,14 @@ fix f x = if x == x' then x else fix f x'
   x' = f x
 
 -- efficient solver
+void :: Matrix Choices -> Bool
+void = any (any null)
+
+safe :: Matrix Choices -> Bool
+safe m = all consistent (rows m) && all consistent (columns m) && all consistent (boxes m)
+
+consistent :: Row Choices -> Bool
+consistent = nodups . concat . filter single
 
 -- Test
 main :: IO ()
