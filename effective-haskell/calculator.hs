@@ -12,6 +12,29 @@ eval expr = case expr of
   Mul arg1 arg2 -> eval arg1 * eval arg2
   Div arg1 arg2 -> eval arg1 `div` eval arg2
 
+safeEval :: Expr -> Either String Int
+safeEval expr = case expr of
+  Lit num -> Right num
+  Add arg1 arg2 -> eval' (ophelper (+)) arg1 arg2
+  Sub arg1 arg2 -> eval' (ophelper (-)) arg1 arg2
+  Mul arg1 arg2 -> eval' (ophelper (*)) arg1 arg2
+  Div arg1 arg2 -> eval' safeDiv arg1 arg2
+  where
+    safeDiv a b
+      | b == 0 = Left "Error: Division by zero"
+      | otherwise = Right $ a `div` b
+
+    ophelper :: (Int -> Int -> Int) -> Int -> Int -> Either String Int
+    ophelper op a b = Right $ a `op` b
+    eval' :: (Int -> Int -> Either String Int) -> Expr -> Expr -> Either String Int
+    eval' operator arg1 arg2 =
+      case safeEval arg1 of
+        Left err -> Left err
+        Right a ->
+          case safeEval arg2 of
+            Left err -> Left err
+            Right b -> operator a b
+
 parse :: String -> Either String Expr
 parse str = case parse' (words str) of
   Left err -> Left err

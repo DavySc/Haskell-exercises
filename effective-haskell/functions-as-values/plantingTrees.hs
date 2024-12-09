@@ -10,7 +10,16 @@ showStringTree (Branch l a r) = leftString <> ", " <> a <> rightString
     rightString = showStringTree r
 
 addElementToIntTree :: BinaryTree Int -> Int -> BinaryTree Int
-addElementToIntTree = undefined
+addElementToIntTree tree n = case tree of
+  Leaf -> Branch Leaf n Leaf
+  Branch l a r
+    | n > a -> Branch l a (addElementToIntTree r n)
+    | n < a -> Branch (addElementToIntTree l n) a r
+    | otherwise -> Branch l a r
 
 doesIntExist :: BinaryTree Int -> Int -> Bool
-doesIntExist = undefined
+doesIntExist Leaf _ = False
+doesIntExist (Branch l a r) n
+  | n < a = doesIntExist l n
+  | n > a = doesIntExist r n
+  | otherwise = True
